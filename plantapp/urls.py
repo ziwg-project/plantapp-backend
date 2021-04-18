@@ -23,7 +23,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Plantapp API Docs",
         default_version='v1',
-        description="Test description",
+        description="Plantapp backend project documentation"
     ),
     public=True,
     permission_classes=(permissions.AllowAny,)
