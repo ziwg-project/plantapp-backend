@@ -17,7 +17,7 @@ class Location(models.Model):
 class Plant(models.Model):
     name = models.CharField(max_length=100)
     sci_name = models.CharField(blank=True, max_length=100)
-    image_url = models.URLField() 
+    image = models.ImageField(blank=True) 
     loc_fk = models.ForeignKey(Location, on_delete=models.CASCADE)
 
 class Reminder(models.Model):
