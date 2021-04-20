@@ -20,6 +20,7 @@ class Plant(models.Model):
     image = models.ImageField(blank=True) 
     loc_fk = models.ForeignKey(Location, on_delete=models.CASCADE)
 
+
 class Reminder(models.Model):
     INTRVL_OPTIONS = (
         ('S', 'SECONDS'),
