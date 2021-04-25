@@ -50,7 +50,7 @@ class UserLocationsViewSet(ModelViewSet):
         return queryset
 
     def perform_create(self, serializer):
-        return serializer.save(owner_fk=self.request.user.id)
+        return serializer.save(owner_fk=self.request.user)
 
 
 class UserRemindersViewSet(ModelViewSet):

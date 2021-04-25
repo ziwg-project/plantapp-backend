@@ -1,5 +1,4 @@
-from rest_framework.serializers import ModelSerializer
-from dj_rest_auth.serializers import UserDetailsSerializer
+from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 
 from .models import Plant, Location, Reminder
 
@@ -11,7 +10,7 @@ class PlantSerializer(ModelSerializer):
 
 
 class LocationSerializer(ModelSerializer):
-    owner_fk = UserDetailsSerializer(required=False)
+    owner_fk = PrimaryKeyRelatedField(required=False, read_only=True)
 
     class Meta:
         model = Location
