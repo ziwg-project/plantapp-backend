@@ -1,6 +1,6 @@
 from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
 
-from .models import Plant, Location, Reminder
+from .models import Plant, Location, Reminder, Note
 
 
 class PlantSerializer(ModelSerializer):
@@ -20,4 +20,10 @@ class LocationSerializer(ModelSerializer):
 class ReminderSerializer(ModelSerializer):
     class Meta:
         model = Reminder
+        fields = '__all__'
+
+
+class NoteSerializer(ModelSerializer):
+    class Meta:
+        model = Note
         fields = '__all__'

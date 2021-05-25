@@ -34,3 +34,8 @@ class Reminder(models.Model):
     intrvl_num = models.IntegerField()
     intrvl_type = models.CharField(max_length=1, choices=INTRVL_OPTIONS)
     plant_fk = models.ForeignKey(Plant, on_delete=models.CASCADE)
+
+
+class Note(models.Model):
+    text = models.TextField()
+    plant_fk = models.ForeignKey(Plant, on_delete=models.CASCADE)
