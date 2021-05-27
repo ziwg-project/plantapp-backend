@@ -1,6 +1,7 @@
 from django.http import Http404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework import filters
 
 from .models import Plant, Location, Reminder, Note
 from .serializers import PlantSerializer, LocationSerializer, ReminderSerializer, NoteSerializer
@@ -14,6 +15,8 @@ class UserPlantsViewSet(ModelViewSet):
         IsAuthenticated,
         IsLocationOwnerOrReadOnly,
     ]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'sci_name']
 
     def get_queryset(self):
         queryset = Plant.objects.filter(loc_fk__owner_fk=self.request.user)
