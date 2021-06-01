@@ -5,7 +5,7 @@ from rest_framework import filters
 
 from .models import Plant, Location, Reminder, Note
 from .serializers import PlantSerializer, LocationSerializer, ReminderSerializer, NoteSerializer
-from .permissions import IsOwner, IsLocationOwnerOrReadOnly, IsPlantOwnerOrReadOnly
+from .permissions import IsOwner, IsLocationOwner, IsPlantOwner
 
 
 class UserPlantsViewSet(ModelViewSet):
@@ -13,7 +13,7 @@ class UserPlantsViewSet(ModelViewSet):
     permission_classes = [
         IsOwner,
         IsAuthenticated,
-        IsLocationOwnerOrReadOnly,
+        IsLocationOwner,
     ]
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'sci_name']
@@ -47,7 +47,7 @@ class UserRemindersViewSet(ModelViewSet):
     permission_classes = [
         IsOwner,
         IsAuthenticated,
-        IsPlantOwnerOrReadOnly,
+        IsPlantOwner,
     ]
 
     def get_queryset(self):
@@ -62,7 +62,7 @@ class UserNotesViewSet(ModelViewSet):
     permission_classes = [
         IsOwner,
         IsAuthenticated,
-        IsPlantOwnerOrReadOnly
+        IsPlantOwner
     ]
 
     def get_queryset(self):
