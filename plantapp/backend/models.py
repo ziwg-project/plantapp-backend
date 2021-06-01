@@ -27,10 +27,12 @@ class Reminder(models.Model):
         ('M', 'MINUTES'),
         ('H', 'HOURS'),
         ('D', 'DAYS'),
-        ('W', 'WEEKS')
+        ('W', 'WEEKS'),
+        ('m', 'MONTHS'),
+        ('Y', 'YEARS')
     )
     text = models.TextField()
-    base_tmstp = models.TimeField()
+    base_tmstp = models.DateTimeField()
     intrvl_num = models.IntegerField()
     intrvl_type = models.CharField(max_length=1, choices=INTRVL_OPTIONS)
     plant_fk = models.ForeignKey(Plant, on_delete=models.CASCADE)
