@@ -1,6 +1,13 @@
+import requests
+import json
+from .constants import PLANT_ID_API_KEY
+
 from django.http import Http404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework import status
 from rest_framework import filters
 
 from .models import Plant, Location, Reminder, Note
@@ -70,3 +77,15 @@ class UserNotesViewSet(ModelViewSet):
         if not queryset.count():
             raise Http404
         return queryset
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def identify_plant(request):
+    if len(request.data) == 2 and all(key in request.data for key in ('plant_details', 'images')):
+        request.data['api_key'] = PLANT_ID_API_KEY
+        plantid_data = json.dumps(request.data)
+        response = requests.post('https://api.plant.id/v2/identify', data=plantid_data).json()
+        return Response(response)
+    else:
+        return Response('Incorrect json data provided!', status=status.HTTP_400_BAD_REQUEST)
