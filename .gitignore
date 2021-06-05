@@ -133,3 +133,4 @@ dmypy.json
 
 #Plantapp project
 static/
+constants.py
