@@ -1,6 +1,8 @@
-from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField
+from django.utils import timezone
 
-from .models import Plant, Location, Reminder, Note
+from rest_framework.serializers import ModelSerializer, PrimaryKeyRelatedField, ValidationError
+
+from .models import Plant, Location, Reminder, Note, Log
 
 
 class PlantSerializer(ModelSerializer):
@@ -27,3 +29,15 @@ class NoteSerializer(ModelSerializer):
     class Meta:
         model = Note
         fields = '__all__'
+
+
+class LogSerializer(ModelSerializer):
+    class Meta:
+        model = Log
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        current_ts = timezone.now()
+        if current_ts < validated_data['log_tmstp']:
+            raise ValidationError("Log timestamp value cannot exceed the present timestamp!")
+        return Log.objects.create(**validated_data)

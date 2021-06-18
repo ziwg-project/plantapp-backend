@@ -41,3 +41,13 @@ class Reminder(models.Model):
 class Note(models.Model):
     text = models.TextField()
     plant_fk = models.ForeignKey(Plant, on_delete=models.CASCADE)
+
+
+class Log(models.Model):
+    LOG_OPTIONS = (
+        ('D', 'DONE'),
+        ('S', 'SKIPPED')
+    )
+    log_type = models.CharField(max_length=1, choices=LOG_OPTIONS)
+    log_tmstp = models.DateTimeField()
+    reminder_fk = models.ForeignKey(Reminder, on_delete=models.CASCADE)

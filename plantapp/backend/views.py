@@ -3,15 +3,16 @@ import json
 from .constants import PLANT_ID_API_KEY
 
 from django.http import Http404
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import filters
 
-from .models import Plant, Location, Reminder, Note
-from .serializers import PlantSerializer, LocationSerializer, ReminderSerializer, NoteSerializer
+from .models import Plant, Location, Reminder, Note, Log
+from .serializers import PlantSerializer, LocationSerializer, ReminderSerializer, NoteSerializer, LogSerializer
 from .permissions import IsOwner, IsLocationOwner, IsPlantOwner
 
 
@@ -74,6 +75,21 @@ class UserNotesViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = Note.objects.filter(plant_fk__loc_fk__owner_fk=self.request.user)
+        if not queryset.count():
+            raise Http404
+        return queryset
+
+
+class UserLogsViewSet(GenericViewSet, CreateModelMixin, ListModelMixin, RetrieveModelMixin):
+    serializer_class = LogSerializer
+    permission_classes = [
+        IsOwner,
+        IsAuthenticated,
+        IsPlantOwner
+    ]
+
+    def get_queryset(self):
+        queryset = Log.objects.filter(reminder_fk__plant_fk__loc_fk__owner_fk=self.request.user)
         if not queryset.count():
             raise Http404
         return queryset
