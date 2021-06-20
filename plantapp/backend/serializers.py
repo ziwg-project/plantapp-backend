@@ -20,6 +20,8 @@ class LocationSerializer(ModelSerializer):
 
 
 class ReminderSerializer(ModelSerializer):
+    notification_task = PrimaryKeyRelatedField(required=False, read_only=True)
+
     class Meta:
         model = Reminder
         fields = '__all__'

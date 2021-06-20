@@ -1,19 +1,21 @@
-import requests
 import json
-from .constants import PLANT_ID_API_KEY
+import uuid
 
+import requests
 from django.http import Http404
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
+from django_celery_beat.models import PeriodicTask, IntervalSchedule
+from rest_framework import status, filters
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import filters
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
+from .constants import PLANT_ID_API_KEY
 from .models import Plant, Location, Reminder, Note, Log
-from .serializers import PlantSerializer, LocationSerializer, ReminderSerializer, NoteSerializer, LogSerializer
 from .permissions import IsOwner, IsLocationOwner, IsPlantOwner
+from .serializers import PlantSerializer, LocationSerializer, ReminderSerializer, NoteSerializer, LogSerializer
+from .utils import NotificationContentProvider, ScheduleMapper
 
 
 class UserPlantsViewSet(ModelViewSet):
@@ -63,6 +65,41 @@ class UserRemindersViewSet(ModelViewSet):
         if not queryset.count():
             raise Http404
         return queryset
+
+    def perform_create(self, serializer):
+        schedule = self.__create_schedule(serializer)
+        notification = NotificationContentProvider(serializer.validated_data)
+        notification_task = PeriodicTask.objects.create(
+            interval=schedule,
+            name=uuid.uuid4(),
+            task='plantapp.celery.send_notification',
+            start_time=serializer.validated_data['base_tmstp'],
+            args=json.dumps([serializer.validated_data['plant_fk'].loc_fk.owner_fk.pk, notification.title, notification.body])
+        )
+        return serializer.save(notification_task=notification_task)
+
+    def perform_update(self, serializer):
+        schedule = self.__create_schedule(serializer)
+        notification = NotificationContentProvider(serializer.validated_data)
+        notification_task = self.get_object().notification_task
+        notification_task.interval = schedule
+        notification_task.start_time = serializer.validated_data['base_tmstp']
+        notification_task.args = json.dumps(
+            [serializer.validated_data['plant_fk'].loc_fk.owner_fk.pk, notification.title, notification.body])
+        notification_task.save()
+        return serializer.save()
+
+    @staticmethod
+    def __create_schedule(serializer):
+        schedule_data = ScheduleMapper.to_celery_beat_schedule(
+            intrvl_num=serializer.validated_data['intrvl_num'],
+            intrvl_type=serializer.validated_data['intrvl_type']
+        )
+        schedule, created = IntervalSchedule.objects.get_or_create(
+            every=schedule_data.every,
+            period=schedule_data.period
+        )
+        return schedule
 
 
 class UserNotesViewSet(ModelViewSet):
