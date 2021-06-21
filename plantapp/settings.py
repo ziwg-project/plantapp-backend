@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'drf_yasg',
     'django_filters',
+    'fcm_django',
+    'django_celery_beat',
 
     # Own
     'plantapp.backend',
@@ -156,3 +158,10 @@ REST_FRAMEWORK = {
 }
 
 SITE_ID = 1
+
+FCM_DJANGO_SETTINGS = {
+    "FCM_SERVER_KEY": "fcm_key_goes_here",
+}
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"

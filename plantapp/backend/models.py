@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django_celery_beat.models import IntervalSchedule, PeriodicTask
 
 USER_MODEL = get_user_model()
 
@@ -17,7 +18,7 @@ class Location(models.Model):
 class Plant(models.Model):
     name = models.CharField(max_length=100)
     sci_name = models.CharField(blank=True, max_length=100)
-    image = models.ImageField(blank=True) 
+    image = models.ImageField(blank=True)
     loc_fk = models.ForeignKey(Location, on_delete=models.CASCADE)
 
 
@@ -36,6 +37,12 @@ class Reminder(models.Model):
     intrvl_num = models.IntegerField()
     intrvl_type = models.CharField(max_length=1, choices=INTRVL_OPTIONS)
     plant_fk = models.ForeignKey(Plant, on_delete=models.CASCADE)
+    notification_task = models.ForeignKey(PeriodicTask, on_delete=models.CASCADE, default=None)
+
+    def delete(self, using=None, keep_parents=False):
+        if self.notification_task:
+            self.notification_task.delete()
+        super().delete(using, keep_parents)
 
 
 class Note(models.Model):
